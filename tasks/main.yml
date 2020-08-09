@@ -1,0 +1,37 @@
+---
+- name: install packages
+  openbsd_pkg:
+    name:
+    - znc
+    state: present
+
+- name: add user account
+  user:
+    name: _znc
+    comment: ZNC pseudo-user
+    uid: 600
+    home: /var/znc
+    shell: /sbin/nologin
+    createhome: no
+
+- name: create znc directory
+  file:
+    path: '{{ item }}'
+    owner: _znc
+    group: _znc
+    mode: 0700
+    state: directory
+  with_items:
+    - /var/znc
+    - /var/znc/configs
+
+- name: copy rc script
+  copy:
+    src: znc
+    dest: /etc/rc.d/znc
+    mode: 0555
+
+- name: enable daemon
+  service:
+    name: znc
+    enabled: yes
